@@ -1,20 +1,14 @@
-FROM openjdk:17-jdk-alpine
+# Verwenden Sie ein offizielles OpenJDK-Image als Basis
+FROM openjdk:17-jdk-slim
 
-WORKDIR /app
+# Argument für das Jar-File
+ARG JAR_FILE=build/libs/*.jar
 
-COPY gradlew ./
-COPY gradle ./gradle
-COPY build.gradle ./
-COPY settings.gradle ./
-COPY src ./src
+# Kopieren Sie das Jar-File in das Image
+COPY ${JAR_FILE} app.jar
 
-RUN chmod +x gradlew
-
-RUN ./gradlew clean build
-
-COPY build/libs/*.jar app.jar
-
-ENV PORT 8080
+# Port, den die Anwendung verwendet
 EXPOSE 8080
 
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# Starten Sie die Anwendung
+ENTRYPOINT ["java", "-jar", "/app.jar"]
