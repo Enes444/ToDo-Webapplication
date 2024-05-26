@@ -1,11 +1,11 @@
-# Stage 1: Build
-FROM gradle:7.5.1-jdk17 AS build
-WORKDIR /app
-COPY --chown=gradle:gradle . .
-RUN gradle bootJar --no-daemon
+# Verwende ein Basis-Image mit OpenJDK 11
+FROM openjdk:11-jre-slim
 
-# Stage 2: Run
-FROM adoptopenjdk:17-jre-hotspot
+# Setze das Arbeitsverzeichnis im Container
 WORKDIR /app
-COPY --from=build /app/build/libs/*.jar app.jar
+
+# Kopiere das erzeugte JAR-File in den Container
+COPY build/libs/*.jar app.jar
+
+# Führe das JAR-File aus
 ENTRYPOINT ["java", "-jar", "app.jar"]
