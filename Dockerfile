@@ -8,6 +8,9 @@ WORKDIR /app
 COPY build.gradle settings.gradle gradlew* ./
 COPY gradle ./gradle
 
+# Machen Sie den Gradle-Wrapper ausführbar
+RUN chmod +x gradlew
+
 # Installieren Sie die Gradle-Abhängigkeiten
 RUN ./gradlew build || return 0
 
@@ -24,7 +27,7 @@ FROM openjdk:17-jdk-slim
 COPY --from=build /app/build/libs/*.jar app.jar
 
 # Port, den die Anwendung verwendet
-EXPOSE 8082
+EXPOSE 8081
 
 # Starten Sie die Anwendung
 ENTRYPOINT ["java", "-jar", "/app.jar"]
