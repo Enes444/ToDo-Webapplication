@@ -1,11 +1,11 @@
-# Verwendet ein Java-Basisimage
-FROM openjdk:11-jre-slim
-
-# Setzt das Arbeitsverzeichnis
+# Verwenden Sie ein Java-Basisimage für den Build
+FROM openjdk:11-jdk-slim AS build
 WORKDIR /app
+COPY . .
+RUN ./gradlew build
 
-# Kopierf das erzeugte JAR-File in den Container
-COPY build/libs/*.jar app.jar
-
-# Führt  das JAR-File aus
+# Verwenden Sie ein schlankes Java-Basisimage für die Ausführung
+FROM openjdk:11-jre-slim
+WORKDIR /app
+COPY --from=build /app/build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
