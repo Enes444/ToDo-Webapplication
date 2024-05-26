@@ -1,19 +1,8 @@
 package de.htwberlin.webtech.Entity;
 
-
-import jakarta.persistence.*;
-
-@Entity
-@Table(name = "todos")
 public class ToDo {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column
     private String description;
 
     // Getter und Setter
