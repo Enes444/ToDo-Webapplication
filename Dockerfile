@@ -1,14 +1,30 @@
-# Verwenden Sie ein offizielles OpenJDK-Image als Basis
+# Verwenden Sie ein offizielles OpenJDK-Image als Basis für den Build
+FROM openjdk:17-jdk-slim AS build
+
+# Setzen Sie das Arbeitsverzeichnis im Container
+WORKDIR /app
+
+# Kopieren Sie den Gradle-Wrapper und das build.gradle file
+COPY build.gradle settings.gradle gradlew* ./
+COPY gradle ./gradle
+
+# Installieren Sie die Gradle-Abhängigkeiten
+RUN ./gradlew build || return 0
+
+# Kopieren Sie den Rest des Anwendungscodes
+COPY src ./src
+
+# Bauen Sie die Anwendung
+RUN ./gradlew build
+
+# Verwenden Sie ein schlankes Runtime-Image
 FROM openjdk:17-jdk-slim
 
-# Argument für das Jar-File
-ARG JAR_FILE=build/libs/*.jar
-
-# Kopieren Sie das Jar-File in das Image
-COPY ${JAR_FILE} app.jar
+# Kopieren Sie das erstellte Jar-File vom build-Image
+COPY --from=build /app/build/libs/*.jar app.jar
 
 # Port, den die Anwendung verwendet
-EXPOSE 8080
+EXPOSE 8082
 
 # Starten Sie die Anwendung
 ENTRYPOINT ["java", "-jar", "/app.jar"]
