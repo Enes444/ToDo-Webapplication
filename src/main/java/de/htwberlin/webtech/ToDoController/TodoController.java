@@ -1,56 +1,48 @@
-package de.htwberlin.webtech.TaskController;
+package de.htwberlin.webtech.ToDoController;
 
-import de.htwberlin.webtech.Entity.Task;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
+
+import de.htwberlin.webtech.Entity.ToDo;
+import de.htwberlin.webtech.ToDoService.ToDoService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-@Controller
-@RequestMapping("/tasks")
-public class TaskController {
+@RestController
+@RequestMapping("/api/todos")
+public class TodoController {
+    @Autowired
+    private ToDoService toDoService;
 
-    private List<Task> tasks = new ArrayList<>();
-
+    // Alle Todos abrufen
     @GetMapping
-    public String getTasks(Model model) {
-        model.addAttribute("tasks", tasks);
-        return "task";
+    public List<ToDo> getAllTodos() {
+        return toDoService.getAllTodos();
     }
 
-    @GetMapping("/new")
-    public String showTaskForm(Model model) {
-        model.addAttribute("task", new Task());
-        return "task_form";
+    // Einzelnes Todo abrufen
+    @GetMapping("/{id}")
+    public ToDo getTodoById(@PathVariable Long id) {
+        Optional<ToDo> todoOptional = toDoService.getTodoById(id);
+        return todoOptional.orElse(null); // Wenn das Todo nicht gefunden wird, wird null zurückgegeben
     }
 
+    // Neues Todo hinzufügen
     @PostMapping
-    public String addTask(@ModelAttribute Task task) {
-        tasks.add(task);
-        return "redirect:/tasks";
+    public ToDo addTodo(@RequestBody ToDo todo) {
+        return toDoService.addTodo(todo);
     }
 
-    @GetMapping("/{id}/edit")
-    public String showEditForm(@PathVariable("id") int id, Model model) {
-        Task task = tasks.get(id);
-        model.addAttribute("task", task);
-        return "task_edit_form";
+    // Existierendes Todo aktualisieren
+    @PutMapping("/{id}")
+    public ToDo updateTodo(@PathVariable Long id, @RequestBody ToDo toDoDetails) {
+        return toDoService.updateTodo(id, toDoDetails);
     }
 
-    @PostMapping("/{id}/edit")
-    public String editTask(@PathVariable("id") int id, @ModelAttribute Task updatedTask) {
-        Task task = tasks.get(id);
-        task.setName(updatedTask.getName());
-        // We can update other properties here if needed
-        tasks.set(id, task);
-        return "redirect:/tasks";
-    }
-
-    @PostMapping("/{id}/delete")
-    public String deleteTask(@PathVariable("id") int id) {
-        tasks.remove(id);
-        return "redirect:/tasks";
+    // Todo löschen
+    @DeleteMapping("/{id}")
+    public boolean deleteTodo(@PathVariable Long id) {
+        return toDoService.deleteTodo(id);
     }
 }
