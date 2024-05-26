@@ -1,11 +1,12 @@
-# Verwendet ein Basis-Image mit OpenJDK 11
+# Verwendet  ein Java-Basisimage
 FROM openjdk:11-jre-slim
 
-# Setzt das Arbeitsverzeichnis im Container
+# Setzt  das Arbeitsverzeichnis
 WORKDIR /app
 
-# Kopiert das erzeugte JAR-File in den Container
-COPY build/libs/*.jar app.jar
+# Kopiert  das erzeugte JAR-File in den Container
+COPY C:/Users/100040290/Downloads/webtech/webtech/build/libs/*.jar app.jar
 
-# Führt das JAR-File aus
+
+# Führt  das JAR-File aus
 ENTRYPOINT ["java", "-jar", "app.jar"]
