@@ -1,12 +1,11 @@
-# Verwendet ein Java-Basisimage für den Build
-FROM openjdk:17-jdk-slim AS build
+# Stage 1: Build
+FROM gradle:7.5.1-jdk17 AS build
 WORKDIR /app
-COPY . .
-RUN chmod +x ./gradlew
-RUN ./gradlew bootJar
+COPY --chown=gradle:gradle . .
+RUN gradle bootJar --no-daemon
 
-# Verwendet ein schlankes Java-Basisimage für die Ausführung
-FROM openjdk:17-jre-slim
+# Stage 2: Run
+FROM adoptopenjdk:17-jre-hotspot
 WORKDIR /app
 COPY --from=build /app/build/libs/*.jar app.jar
 ENTRYPOINT ["java", "-jar", "app.jar"]
