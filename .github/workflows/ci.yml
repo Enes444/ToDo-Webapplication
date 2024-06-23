@@ -41,8 +41,7 @@ jobs:
       - name: Set execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Print environment variables
-        run: printenv | grep DB_
+
 
       - name: Wait for PostgreSQL
         run: |
