@@ -1,49 +1,47 @@
 package de.htwberlin.webtech.ToDoService;
 
 import de.htwberlin.webtech.Entity.ToDo;
+import de.htwberlin.webtech.ToDoRepository.ToDoRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.atomic.AtomicLong;
 
 @Service
 public class ToDoService {
-    private final List<ToDo> todos = new ArrayList<>();
-    private final AtomicLong counter = new AtomicLong();
+    @Autowired
+    private ToDoRepository toDoRepository;
 
-    // Alle Todos abrufen
     public List<ToDo> getAllTodos() {
-        return new ArrayList<>(todos);
+        return toDoRepository.findAll();
     }
 
-    // Einzelnes Todo anhand der ID abrufen
     public Optional<ToDo> getTodoById(Long id) {
-        return todos.stream().filter(todo -> todo.getId().equals(id)).findFirst();
+        return toDoRepository.findById(id);
     }
 
-    // Neues Todo hinzufügen
     public ToDo addTodo(ToDo todo) {
-        todo.setId(counter.incrementAndGet());
-        todos.add(todo);
-        return todo;
+        return toDoRepository.save(todo);
     }
 
-    // Existierendes Todo aktualisieren
     public ToDo updateTodo(Long id, ToDo toDoDetails) {
-        Optional<ToDo> todoOptional = getTodoById(id);
-        if (todoOptional.isPresent()) {
-            ToDo todo = todoOptional.get();
-            todo.setTitle(toDoDetails.getTitle());
-            todo.setDescription(toDoDetails.getDescription());
-            return todo;
+        Optional<ToDo> optionalToDo = toDoRepository.findById(id);
+        if (optionalToDo.isPresent()) {
+            ToDo existingToDo = optionalToDo.get();
+            existingToDo.setTitle(toDoDetails.getTitle());
+            existingToDo.setDescription(toDoDetails.getDescription());
+            existingToDo.setCompleted(toDoDetails.isCompleted());
+            return toDoRepository.save(existingToDo);
         }
-        return null; // Todo nicht gefunden
+        return null;
     }
 
-    // Todo löschen
     public boolean deleteTodo(Long id) {
-        return todos.removeIf(todo -> todo.getId().equals(id));
+        if (toDoRepository.existsById(id)) {
+            toDoRepository.deleteById(id);
+            return true;
+        }
+        return false;
     }
 }
