@@ -38,7 +38,10 @@ jobs:
           distribution: 'adopt'
 
       - name: Print environment variables
-        run: printenv | grep DB_
+        run: |
+          printenv | grep DB_ || true
+        env:
+          JAVA_HOME: /opt/hostedtoolcache/Java_Adopt_jdk/17.0.11-9/x64
 
       - name: Wait for PostgreSQL
         run: |
