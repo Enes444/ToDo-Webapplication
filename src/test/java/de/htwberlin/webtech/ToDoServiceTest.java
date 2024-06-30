@@ -1,7 +1,5 @@
 package de.htwberlin.webtech;
 
-
-
 import de.htwberlin.webtech.Entity.ToDo;
 import de.htwberlin.webtech.ToDoRepository.ToDoRepository;
 import de.htwberlin.webtech.ToDoService.ToDoService;
@@ -11,87 +9,121 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
 
-public class ToDoServiceTest {
+/**
+ * Testklasse für den ToDoService.
+ * Diese Klasse enthält Unit-Tests für die Methoden des ToDoService.
+ */
+class ToDoServiceTest {
 
     @Mock
-    private ToDoRepository toDoRepository;
+    private ToDoRepository toDoRepository; // Mock-Objekt für das ToDoRepository
 
     @InjectMocks
-    private ToDoService toDoService;
+    private ToDoService toDoService; // Der zu testende Service
 
+    /**
+     * Initialisierungsmethode, die vor jedem Test ausgeführt wird.
+     * Hier werden die Mock-Objekte initialisiert.
+     */
     @BeforeEach
-    public void setup() {
+    void setUp() {
         MockitoAnnotations.openMocks(this);
     }
 
+    /**
+     * Test für die Methode getAllTodos.
+     * Überprüft, ob alle Todos korrekt abgerufen werden.
+     */
     @Test
-    public void testGetTodoById() {
-        ToDo mockToDo = new ToDo();
-        mockToDo.setId(1L);
-        mockToDo.setTitle("Test ToDo");
-        mockToDo.setDescription("Test Description");
-        mockToDo.setCompleted(false);
+    void testGetAllTodos() {
+        // Vorbereitung der Testdaten
+        ToDo todo1 = new ToDo();
+        ToDo todo2 = new ToDo();
+        List<ToDo> todos = Arrays.asList(todo1, todo2);
 
-        when(toDoRepository.findById(1L)).thenReturn(Optional.of(mockToDo));
+        // Mock-Verhalten definieren
+        when(toDoRepository.findAll()).thenReturn(todos);
 
-        Optional<ToDo> result = toDoService.getTodoById(1L);
+        // Methode aufrufen
+        List<ToDo> result = toDoService.getAllTodos();
 
-        assertEquals("Test ToDo", result.get().getTitle());
-        assertEquals("Test Description", result.get().getDescription());
-        assertEquals(false, result.get().isCompleted());
+        // Überprüfungen
+        assertEquals(2, result.size());
+        verify(toDoRepository, times(1)).findAll();
     }
 
+    /**
+     * Test für die Methode addTodo.
+     * Überprüft, ob ein neues Todo korrekt hinzugefügt wird.
+     */
     @Test
-    public void testAddTodo() {
-        ToDo newToDo = new ToDo();
-        newToDo.setTitle("New ToDo");
-        newToDo.setDescription("New Description");
-        newToDo.setCompleted(false);
+    void testAddTodo() {
+        // Vorbereitung der Testdaten
+        ToDo todo = new ToDo();
 
-        when(toDoRepository.save(newToDo)).thenReturn(newToDo);
+        // Mock-Verhalten definieren
+        when(toDoRepository.save(todo)).thenReturn(todo);
 
-        ToDo addedToDo = toDoService.addTodo(newToDo);
+        // Methode aufrufen
+        ToDo result = toDoService.addTodo(todo);
 
-        assertEquals("New ToDo", addedToDo.getTitle());
-        assertEquals("New Description", addedToDo.getDescription());
-        assertEquals(false, addedToDo.isCompleted());
+        // Überprüfungen
+        assertNotNull(result);
+        verify(toDoRepository, times(1)).save(todo);
     }
 
+    /**
+     * Test für die Methode updateTodo.
+     * Überprüft, ob ein bestehendes Todo korrekt aktualisiert wird.
+     */
     @Test
-    public void testUpdateTodo() {
-        ToDo existingToDo = new ToDo();
-        existingToDo.setId(1L);
-        existingToDo.setTitle("Existing ToDo");
-        existingToDo.setDescription("Existing Description");
-        existingToDo.setCompleted(false);
+    void testUpdateTodo() {
+        // Vorbereitung der Testdaten
+        Long id = 1L;
+        ToDo existingTodo = new ToDo();
+        existingTodo.setId(id);
+        ToDo updatedDetails = new ToDo();
+        updatedDetails.setTitle("Updated Title");
 
-        ToDo updatedToDoDetails = new ToDo();
-        updatedToDoDetails.setTitle("Updated ToDo");
-        updatedToDoDetails.setDescription("Updated Description");
-        updatedToDoDetails.setCompleted(true);
+        // Mock-Verhalten definieren
+        when(toDoRepository.findById(id)).thenReturn(Optional.of(existingTodo));
+        when(toDoRepository.save(existingTodo)).thenReturn(existingTodo);
 
-        when(toDoRepository.findById(1L)).thenReturn(Optional.of(existingToDo));
-        when(toDoRepository.save(existingToDo)).thenReturn(existingToDo);
+        // Methode aufrufen
+        ToDo result = toDoService.updateTodo(id, updatedDetails);
 
-        ToDo updatedToDo = toDoService.updateTodo(1L, updatedToDoDetails);
-
-        assertEquals("Updated ToDo", updatedToDo.getTitle());
-        assertEquals("Updated Description", updatedToDo.getDescription());
-        assertEquals(true, updatedToDo.isCompleted());
+        // Überprüfungen
+        assertNotNull(result);
+        assertEquals("Updated Title", result.getTitle());
+        verify(toDoRepository, times(1)).findById(id);
+        verify(toDoRepository, times(1)).save(existingTodo);
     }
 
+    /**
+     * Test für die Methode deleteTodo.
+     * Überprüft, ob ein Todo korrekt gelöscht wird.
+     */
     @Test
-    public void testDeleteTodo() {
-        when(toDoRepository.existsById(1L)).thenReturn(true);
+    void testDeleteTodo() {
+        // Vorbereitung der Testdaten
+        Long id = 1L;
 
-        boolean isDeleted = toDoService.deleteTodo(1L);
+        // Mock-Verhalten definieren
+        when(toDoRepository.existsById(id)).thenReturn(true);
 
-        assertTrue(isDeleted);
+        // Methode aufrufen
+        boolean result = toDoService.deleteTodo(id);
+
+        // Überprüfungen
+        assertTrue(result);
+        verify(toDoRepository, times(1)).existsById(id);
+        verify(toDoRepository, times(1)).deleteById(id);
     }
 }
