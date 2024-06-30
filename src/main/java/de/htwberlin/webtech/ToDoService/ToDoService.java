@@ -34,6 +34,16 @@ public class ToDoService {
     }
 
     /**
+     * Methode zum Abrufen eines Todos nach ID.
+     * @param id die ID des zu abrufenden Todos
+     * @return das Todo oder null, wenn das Todo nicht gefunden wurde
+     */
+    public ToDo findById(Long id) {
+        Optional<ToDo> optionalToDo = toDoRepository.findById(id);
+        return optionalToDo.orElse(null);
+    }
+
+    /**
      * Methode zum Aktualisieren eines bestehenden Todos.
      * @param id die ID des zu aktualisierenden Todos
      * @param toDoDetails die neuen Details des Todos

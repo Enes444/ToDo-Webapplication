@@ -38,6 +38,20 @@ public class TodoController {
     }
 
     /**
+     * Methode zum Abrufen eines Todos nach ID.
+     * @param id die ID des zu abrufenden Todos
+     * @return das Todo oder eine 404-Not-Found-Antwort, wenn das Todo nicht gefunden wurde
+     */
+    @GetMapping("/{id}")
+    public ResponseEntity<ToDo> getTodoById(@PathVariable Long id) {
+        ToDo todo = toDoService.findById(id);
+        if (todo == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(todo);
+    }
+
+    /**
      * Methode zum Aktualisieren eines bestehenden Todos.
      * @param id die ID des zu aktualisierenden Todos
      * @param toDoDetails die neuen Details des Todos
